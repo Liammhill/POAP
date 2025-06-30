@@ -14,6 +14,7 @@ print(dash.__version__)
 external_stylesheets = [dbc.themes.LUX]
 
 app = Dash(__name__, use_pages=True,external_stylesheets=external_stylesheets)
+server = app.server
 
 dropdown = dbc.DropdownMenu(
     label="More Pages",
