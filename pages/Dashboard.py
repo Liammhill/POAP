@@ -1,0 +1,52 @@
+import dash
+from dash import html, dcc, Input, Output
+import pandas as pd
+import dash_bootstrap_components as dbc
+import plotly.express as px
+
+# Alternate text positions to reduce overlap
+text_positions = ["top left", "top center", "top right", "middle left", "middle center", "middle right", "bottom left", "bottom center", "bottom right"]
+
+df = pd.read_csv('pages/df.csv')
+selected_columns = ['Project', 'Type', 'Milestone', 'Date', 'RAG']
+df = df[selected_columns]
+
+df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y")
+df = df.sort_values(by="Date")
+
+colour_map = {"Red": "red", "Amber": "orange", "Green": "green"}
+fig = px.scatter(df, y = "Project", x = "Date", color = "RAG", hover_data = ["Milestone", "Date"], color_discrete_map=colour_map)
+
+dash.register_page(__name__, path='/') # path='/' makes this the homepage
+
+layout = html.Div([html.Br(), html.H5("Filters"),
+                   html.Div([dbc.Row([dbc.Col(html.Div(dcc.Dropdown(id="Project-Filter", options=[{"label": col, "value": col} for col in df["Project"].unique()],value=None, placeholder="Filter by Project", clearable=True
+                                                                                                     )),width=6)])]),
+    html.Br(),
+    dcc.Graph(id="scatter-graph",figure=fig, style={'width': '100%', 'height': '85vh'})])
+
+# Callback for Filtering
+
+@dash.callback(
+    Output("scatter-graph", "figure"),
+    Input("Project-Filter", "value")
+)
+
+def update_graph(selected_project):
+    filtered_df = df if selected_project is None else df[df["Project"] == selected_project]
+
+    fig = px.scatter(filtered_df,y = "Project", x = "Date", color = "RAG", hover_data = ["Milestone", "Date"], color_discrete_map=colour_map)
+
+    if selected_project and len(filtered_df["Project"].unique()) == 1:
+        for i, row in filtered_df.iterrows():
+            fig.add_annotation(
+                    x=row["Date"],
+                    y=row["Project"],
+                    text=row["Milestone"],
+                    yshift=250 if i % 2 == 0 else -250,
+                    font=dict(size=12, color="black"),
+                )
+
+
+
+    return fig

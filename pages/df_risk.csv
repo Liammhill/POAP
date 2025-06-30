@@ -1,0 +1,21 @@
+Date Raised,Project,Risk Description,Likelihood,Severity,Proximity
+2025-01-01,Alpha,Data breach,4,2,Medium
+2025-01-02,Gamma,Budget overrun,3,4,Medium
+2025-01-03,Beta,Data breach,3,4,Medium
+2025-01-04,Delta,Supply chain disruption,3,5,Short
+2025-01-05,Gamma,Budget overrun,2,5,Short
+2025-01-06,Delta,Technical failure,4,3,Short
+2025-01-07,Epsilon,Regulatory compliance,2,1,Long
+2025-01-08,Alpha,Regulatory compliance,2,2,Medium
+2025-01-09,Gamma,Data breach,1,3,Short
+2025-01-10,Gamma,Budget overrun,1,1,Short
+2025-01-11,Alpha,Technical failure,1,2,Long
+2025-01-12,Alpha,Technical failure,3,4,Short
+2025-01-13,Alpha,Data breach,5,2,Medium
+2025-01-14,Delta,Data breach,2,1,Long
+2025-01-15,Alpha,Technical failure,3,4,Short
+2025-01-16,Delta,Supply chain disruption,2,2,Medium
+2025-01-17,Alpha,Budget overrun,1,5,Short
+2025-01-18,Epsilon,Regulatory compliance,5,2,Medium
+2025-01-19,Alpha,Data breach,1,5,Medium
+2025-01-20,Gamma,Regulatory compliance,2,5,Long
