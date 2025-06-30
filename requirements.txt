@@ -1,0 +1,5 @@
+dash
+pandas
+dash_boostrap_components
+plotly.express
+gunicorn
