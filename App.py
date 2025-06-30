@@ -27,7 +27,7 @@ dropdown = dbc.DropdownMenu(
 
 navbar = dbc.NavbarSimple(
     children=[dropdown],
-    brand="Plan on a Page",
+    brand="POAP MVP",
     brand_href="/",
     color="primary",
     dark=True,
