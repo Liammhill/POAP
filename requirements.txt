@@ -3,6 +3,5 @@ pandas
 dash_bootstrap_components
 plotly.express
 gunicorn
-os
 json
 gspread
