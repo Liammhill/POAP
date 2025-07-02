@@ -3,4 +3,6 @@ pandas
 dash_bootstrap_components
 plotly.express
 gunicorn
-dash_auth
+os
+json
+gspread
