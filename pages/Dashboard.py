@@ -43,7 +43,6 @@ def update_graph(selected_project):
                     x=row["Date"],
                     y=row["Project"],
                     text=row["Milestone"],
-                    yshift=250 if i % 2 == 0 else -250,
                     font=dict(size=12, color="black"),
                 )
 
