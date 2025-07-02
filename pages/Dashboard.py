@@ -3,11 +3,35 @@ from dash import html, dcc, Input, Output
 import pandas as pd
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import os
+import json
+import gspread
+from google.oauth2.service_account import Credentials
 
 # Alternate text positions to reduce overlap
 text_positions = ["top left", "top center", "top right", "middle left", "middle center", "middle right", "bottom left", "bottom center", "bottom right"]
 
-df = pd.read_csv('pages/df.csv')
+# Load service account credentials from environment variable
+creds_json = os.getenv("GOOGLE_CREDENTIALS")
+creds_dict = json.loads(creds_json)
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+# Authorize with gspread
+credentials = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+client = gspread.authorize(credentials)
+
+# Open the spreadsheet
+spreadsheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1zMobZwRyBjmCPBR8G37y08Bs5YCLWvbTVg3VWLQ57o8")  
+sheet = spreadsheet.worksheet("df")
+
+# Get data into pandas
+data = sheet.get_all_records()
+df = pd.DataFrame(data)
+
 selected_columns = ['Project', 'Type', 'Milestone', 'Date', 'RAG']
 df = df[selected_columns]
 
