@@ -35,7 +35,7 @@ df = pd.DataFrame(data)
 selected_columns = ['Project', 'Type', 'Milestone', 'Date', 'RAG']
 df = df[selected_columns]
 
-df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y")
+df["Date"] = pd.to_datetime(df["Date"])
 df = df.sort_values(by="Date")
 
 colour_map = {"Red": "red", "Amber": "orange", "Green": "green"}
