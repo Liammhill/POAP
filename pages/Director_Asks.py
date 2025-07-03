@@ -8,6 +8,6 @@
 #df2 = df[selected_columns]
 
 #layout = html.Div([
-    html.H1('Director Asks'),
-    dash_table.DataTable(df2.to_dict('records'), [{"name": i, "id": i} for i in df2.columns], sort_action='native', filter_action='native')
+    #html.H1('Director Asks'),
+    #dash_table.DataTable(df2.to_dict('records'), [{"name": i, "id": i} for i in df2.columns], sort_action='native', filter_action='native')
 ])
