@@ -35,9 +35,6 @@ df = pd.DataFrame(data)
 selected_columns = ['Project', 'Type', 'Milestone', 'Date', 'RAG']
 df = df[selected_columns]
 
-df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d", errors = "coerce")
-df = df.sort_values(by="Date")
-
 colour_map = {"Red": "red", "Amber": "orange", "Green": "green"}
 fig = px.scatter(df, y = "Project", x = "Date", color = "RAG", hover_data = ["Milestone", "Date"], color_discrete_map=colour_map)
 
