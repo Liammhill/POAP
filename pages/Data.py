@@ -1,12 +1,11 @@
 import dash
 from dash import html, dcc, dash_table
 import pandas as pd
+from Dashboard import df
 
-df = pd.read_csv('pages/df.csv')
-df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y")
+df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d", errors = "coerce")
 df = df.sort_values(by="Date")
 selected_columns = ['Project', 'Milestone', 'Director Ask', 'Director Deadline']
-df2 = df[selected_columns]
 
 dash.register_page(__name__)
 
