@@ -2,11 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const demo = process.env.VITE_DEMO === '1';
+
 export default defineConfig({
   base: './',
+  build: demo ? { outDir: 'dist-demo' } : {},
   plugins: [
     react(),
-    VitePWA({
+    !demo && VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {

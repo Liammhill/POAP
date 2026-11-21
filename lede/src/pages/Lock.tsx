@@ -12,7 +12,8 @@ export default function Lock({ onUnlock }: { onUnlock: (s: Session) => void }) {
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   const [show, setShow] = useState(false);
-  const [sample, setSample] = useState(false);
+  const DEMO = import.meta.env.VITE_DEMO === '1';
+  const [sample, setSample] = useState(DEMO);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [sealed, setSealed] = useState<Sealed>();
@@ -94,6 +95,7 @@ export default function Lock({ onUnlock }: { onUnlock: (s: Session) => void }) {
           {pwInput('Choose a password', pw, setPw, true)}
           {pwInput('Confirm password', pw2, setPw2)}
           <label className="check"><input type="checkbox" checked={sample} onChange={(e) => setSample(e.target.checked)} />Start with sample data to explore</label>
+          {DEMO && <div className="note" style={{ background: 'var(--lav)', borderStyle: 'solid' }}><b>Demo.</b> All clients and figures are fictional. Make up any password of 10+ characters. Nothing leaves this browser.</div>}
           <div className="note">There’s no password recovery — that’s what keeps it private. Keep it in your password manager, and turn on Drive sync or export backups in Settings.</div>
           {err && <div className="err">{err}</div>}
           <button className="btn primary" disabled={busy} onClick={create}>{busy ? 'Setting up…' : 'Create my studio'}</button>
