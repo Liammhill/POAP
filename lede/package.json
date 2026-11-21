@@ -1,0 +1,32 @@
+{
+  "name": "lede",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lede — a private business companion for Eleanor Herzog, communications strategist.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "scan": "node scanner/scan.mjs public/opportunities.json",
+    "test": "node --experimental-strip-types --no-warnings src/lib/tax.test.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "idb-keyval": "^6.3.0",
+    "lucide-react": "^1.77.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "workbox-window": "^7.4.1"
+  }
+}

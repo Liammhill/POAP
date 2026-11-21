@@ -1,0 +1,11 @@
+import { estimate, DEFAULT_TAX as P, personalAllowance } from './tax.ts';
+const eq = (a: number, b: number, msg: string) => { if (Math.abs(a - b) > 0.01) { console.error('FAIL', msg, a, '≠', b); (globalThis as any).process.exit(1); } else console.log('ok', msg); };
+eq(estimate(12_570, 0, P).total, 0, 'no tax at PA');
+eq(estimate(30_000, 0, P).incomeTax, 3_486, 'basic IT 30k');
+eq(estimate(30_000, 0, P).ni, 1_045.8, 'class 4 30k');
+eq(estimate(60_000, 0, P).incomeTax, 7_540 + 3_892, 'higher IT 60k');
+eq(estimate(60_000, 0, P).ni, 2_262 + 194.6, 'class 4 60k');
+eq(personalAllowance(110_000, P), 7_570, 'PA taper');
+eq(personalAllowance(130_000, P), 0, 'PA gone');
+eq(estimate(20_000, 20_000, P).incomeTax, 4_000, 'other income uses PA first');
+console.log('all tax tests passed');

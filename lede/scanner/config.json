@@ -1,0 +1,11 @@
+{
+  "daysBack": 21,
+  "keepIfMatches": "communicat|\\bcomms\\b|copywrit|copy ?edit|content|public relations|\\bPR\\b|press|media relations|campaign|engagement|consultation|marketing|messaging|brand|editorial|writer|writing|storytelling|annual report|impact report|newsletter|stakeholder|behaviour change|social media",
+  "cpvPrefixes": ["7934", "7941", "79822", "79416", "79413", "79342"],
+  "rss": [
+    { "name": "Guardian Jobs", "url": "https://jobs.theguardian.com/jobsrss/?Keywords=communications%20freelance" },
+    { "name": "Guardian Jobs", "url": "https://jobs.theguardian.com/jobsrss/?Keywords=copywriter%20charity" },
+    { "name": "CharityJob", "url": "https://www.charityjob.co.uk/rss/jobs?keywords=freelance+communications" },
+    { "name": "Third Sector Jobs", "url": "https://jobs.thirdsector.co.uk/jobsrss/?keywords=communications+consultant" }
+  ]
+}

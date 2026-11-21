@@ -1,0 +1,51 @@
+name: Lede — build, scan & deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ['lede/**', '.github/workflows/lede.yml']
+  schedule:
+    - cron: '17 6 * * *' # daily opportunity scan (06:17 UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: lede-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lede
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lede/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Scan public sources for opportunities
+        run: npm run scan
+        continue-on-error: true
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: lede/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
