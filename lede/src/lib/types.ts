@@ -25,6 +25,7 @@ export interface Invoice {
   amount: number; // GBP, net
   paidDate?: ISODate;
   /** Pitch material: flag notable work */
+  bankRef?: string; // set when created/reconciled from a bank statement
   showcase?: boolean;
   profile?: number; // 1–5 how high-profile / exciting
   highlight?: string; // one-line case-study blurb
@@ -36,6 +37,7 @@ export interface Expense {
   description: string;
   category: ExpenseCategory;
   amount: number;
+  bankRef?: string;
 }
 export type ExpenseCategory =
   | 'Travel' | 'Mileage' | 'Software & subscriptions' | 'Phone & internet' | 'Office & equipment'
@@ -115,8 +117,15 @@ export interface Settings {
   keywords: string;
   googleClientId: string;
   driveSync: boolean;
+  bankManaged: boolean; // invoicing & MTD filing handled by her bank (Starling)
+  bankRules: Record<string, BankRule>; // remembered per counterparty
   tax: TaxParams;
 }
+
+export type BankRule =
+  | { kind: 'client'; clientId: string }
+  | { kind: 'ignore' }
+  | { kind: 'expense'; category: ExpenseCategory };
 
 export interface Vault {
   version: 1;

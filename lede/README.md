@@ -48,6 +48,17 @@ Needed to import historic records from Drive and to sync between devices.
 
 Scopes requested: `drive.readonly` (to search and read her spreadsheets — Lede never edits her files) and `drive.appdata` (the hidden folder for the encrypted backup).
 
+## Importing from Starling
+
+Eleanor invoices and files through Starling, so Lede is the insight layer on top. **Money & tax → Starling statement** takes Starling's CSV transaction export:
+
+* **Money in** is grouped by payer and matched to clients (truncated bank names like `RIVERSIDE HOUSING TRUS` are matched automatically). Interest, refunds, HMRC and transfers from herself are left out by default.
+* **Money out** becomes expenses, with a category guessed from Starling's spending category; tax payments and transfers to herself are excluded.
+* A payment that matches an unpaid invoice logged in Lede (same client, same amount) marks it paid.
+* Choices are remembered per payee, and transactions already imported are skipped, so a monthly export with overlapping dates is one click.
+
+With "Invoicing and tax filing are done in Starling" on (Settings, default), invoice printing and chaser emails are hidden and the MTD card becomes a reference panel.
+
 ## Importing historic records
 
 **Money & tax → Import** accepts Google Sheets (all tabs), Excel and CSV — from Drive or an upload. Lede detects the header row and guesses columns (client, invoice no., date, amount, paid date / status), shows a summary (row count, total, date range, number of clients) and a preview, then imports. Clients are created automatically and duplicates are skipped, so re-importing an updated sheet is safe. Expenses can be imported the same way.

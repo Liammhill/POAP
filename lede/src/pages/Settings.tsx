@@ -78,6 +78,7 @@ export default function Settings() {
 
         <Card>
           <CardHead title="Tax" sub="Defaults are 2026/27 rates for England, Wales & NI" />
+          <label className="check" style={{ marginBottom: 14 }}><input type="checkbox" checked={s.bankManaged} onChange={(e) => set({ bankManaged: e.target.checked })} />Invoicing and tax filing are done in Starling</label>
           <div className="form-grid">
             <Field label="Accounting basis"><select className="input" value={s.basis} onChange={(e) => set({ basis: e.target.value as S['basis'] })}><option value="cash">Cash basis (default for sole traders)</option><option value="accruals">Accruals</option></select></Field>
             {txt('otherIncome', 'Other taxable income (£/yr)', 'Salary, pension etc. — affects your band', 'number')}
@@ -113,6 +114,7 @@ export default function Settings() {
           <CardHead title="Your data" />
           <div className="stack" style={{ gap: 10 }}>
             <button className="btn" onClick={backup}><Download size={16} />Download encrypted backup</button>
+            {Object.keys(s.bankRules).length > 0 && <button className="btn" onClick={() => set({ bankRules: {} })}>Forget {Object.keys(s.bankRules).length} saved Starling payee choices</button>}
             <div className="tiny muted">A .lede file — restore it on any device with your password.</div>
             <button className="btn danger" onClick={() => {
               if (!confirm('Remove ALL clients, invoices, expenses, pipeline and documents? Settings are kept.')) return;

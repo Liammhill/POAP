@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Plus, Upload, Download, Printer, Mail, Check, Trash2, Receipt, Info } from 'lucide-react';
+import { Plus, Upload, Download, Printer, Mail, Check, Trash2, Receipt, Info, Landmark } from 'lucide-react';
 import { Badge, Bars, Card, CardHead, Empty, Field, Meter, Modal, PageHead, SearchBox, Seg, Stat, confirmDelete } from '../components/ui';
 import InvoiceEditor, { newInvoice } from '../components/InvoiceEditor';
 import InvoicePrint from '../components/InvoicePrint';
 import Importer from '../components/Importer';
+import StarlingImport from '../components/StarlingImport';
 import { clientName, deadlines, financeSummary, invStatus, taxYearsWithData } from '../lib/analytics';
 import { daysBetween, fmtDate, fmtShort, taxYearOf, today } from '../lib/dates';
 import { gbp, pct, sum, uid } from '../lib/format';
@@ -19,6 +20,7 @@ export default function Finance() {
   const [yearIdx, setYearIdx] = useState(0);
   const [tab, setTab] = useState<Tab>('overview');
   const [importing, setImporting] = useState(false);
+  const [starling, setStarling] = useState(false);
   const ty = years[yearIdx] ?? taxYearOf(today());
   const f = useMemo(() => financeSummary(vault, ty), [vault, ty]);
 
@@ -28,7 +30,8 @@ export default function Finance() {
         <select className="input" style={{ width: 'auto' }} value={yearIdx} onChange={(e) => setYearIdx(Number(e.target.value))}>
           {years.map((y, i) => <option key={y.label} value={i}>{y.label}{i === 0 ? ' (current)' : ''}</option>)}
         </select>
-        <button className="btn" onClick={() => setImporting(true)}><Upload size={16} />Import</button>
+        <button className="btn" onClick={() => setImporting(true)} title="Other spreadsheets, CSV or Google Drive"><Upload size={16} />Import file</button>
+        <button className="btn primary" onClick={() => setStarling(true)}><Landmark size={16} />Starling statement</button>
       </>} />
       <div style={{ marginBottom: 18 }}>
         <Seg value={tab} onChange={setTab} options={[{ value: 'overview', label: 'Overview' }, { value: 'invoices', label: 'Invoices' }, { value: 'expenses', label: 'Expenses' }, { value: 'tax', label: 'Tax planner' }]} />
@@ -38,6 +41,7 @@ export default function Finance() {
       {tab === 'expenses' && <Expenses f={f} />}
       {tab === 'tax' && <Tax f={f} />}
       {importing && <Importer onClose={() => setImporting(false)} />}
+      {starling && <StarlingImport onClose={() => setStarling(false)} />}
     </>
   );
 }
@@ -118,17 +122,19 @@ function Invoices() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `invoices-${now}.csv`; a.click();
   };
 
+  const bank = vault.settings.bankManaged;
   return (
     <Card>
+      {bank && <div className="note" style={{ marginBottom: 14 }}>Invoices are raised in Starling. Log one here if you want to track it while it’s outstanding. When the payment arrives in a Starling import, it’s marked paid automatically.</div>}
       <div className="row wrap between" style={{ marginBottom: 14 }}>
         <Seg value={filter} onChange={setFilter} options={[{ value: 'all', label: 'All' }, { value: 'unpaid', label: 'Unpaid' }, { value: 'overdue', label: 'Overdue' }, { value: 'paid', label: 'Paid' }]} />
         <div className="row wrap">
           <SearchBox value={q} onChange={setQ} />
           <button className="btn" onClick={exportCsv} title="CSV for your accountant"><Download size={16} />CSV</button>
-          <button className="btn primary" onClick={() => setEdit(newInvoice(vault))}><Plus size={16} />New invoice</button>
+          <button className={`btn ${bank ? '' : 'primary'}`} onClick={() => setEdit(newInvoice(vault))}><Plus size={16} />{bank ? 'Log invoice' : 'New invoice'}</button>
         </div>
       </div>
-      {!list.length ? <Empty icon={<Receipt size={30} />} title="No invoices here">Create one, or import your history from Drive or a spreadsheet.</Empty> : (
+      {!list.length ? <Empty icon={<Receipt size={30} />} title="No invoices here">Import a Starling statement, or bring in older records from Drive or a spreadsheet.</Empty> : (
         <div className="table-wrap"><table>
           <thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th className="right">Amount</th><th>Status</th><th /></tr></thead>
           <tbody>{list.map((i) => {
@@ -143,8 +149,8 @@ function Invoices() {
                 <td onClick={(e) => e.stopPropagation()}>
                   <div className="row" style={{ gap: 2, justifyContent: 'flex-end' }}>
                     {!i.paidDate && <button className="btn ghost icon" title="Mark paid today" onClick={() => upsert('invoices', { ...i, paidDate: now })}><Check size={16} /></button>}
-                    {s === 'overdue' && <a className="btn ghost icon" title="Email a reminder" href={chaseLink(vault, i)}><Mail size={16} /></a>}
-                    <button className="btn ghost icon" title="Print / PDF" onClick={() => setPrint(i)}><Printer size={16} /></button>
+                    {!bank && s === 'overdue' && <a className="btn ghost icon" title="Email a reminder" href={chaseLink(vault, i)}><Mail size={16} /></a>}
+                    {!bank && <button className="btn ghost icon" title="Print / PDF" onClick={() => setPrint(i)}><Printer size={16} /></button>}
                   </div>
                 </td>
               </tr>
@@ -281,9 +287,9 @@ function Tax({ f }: { f: F }) {
           <div className="small muted">{vatShare > 0.85 ? 'Close to the threshold — talk to your accountant about registering.' : `${gbp(p.vatThreshold - f.vat12)} headroom before you’d need to register.`}</div>
         </Card>
         <Card>
-          <CardHead title="Making Tax Digital" />
-          <Badge tone={f.mtd.required ? 'butter' : 'sage'}>{f.mtd.required ? `In scope from ${f.mtd.from}` : 'Not in scope yet'}</Badge>
-          <p className="small">{f.mtd.text}</p>
+          <CardHead title={s.bankManaged ? 'Filing' : 'Making Tax Digital'} sub={s.bankManaged ? 'Handled in Starling. Dates here for reference.' : undefined} />
+          <Badge tone={f.mtd.required ? 'butter' : 'sage'}>{f.mtd.required ? `MTD from ${f.mtd.from}` : 'MTD not in scope yet'}</Badge>
+          <p className="small">{s.bankManaged ? (f.mtd.required ? `At this income, quarterly MTD updates apply from ${f.mtd.from}. Starling’s tax tools submit them for you.` : 'At this income, quarterly MTD updates aren’t required yet.') : f.mtd.text}</p>
           <div className="tiny muted">Payments on account: if last year’s bill was over £1,000, HMRC asks for half of it in advance on 31 Jan and 31 Jul.</div>
           <div className="list" style={{ marginTop: 8 }}>{deadlines().slice(0, 3).map((d) => <div key={d.date + d.title} className="item small" style={{ padding: '7px 0' }}><b style={{ width: 64 }}>{fmtShort(d.date)}</b><span className="grow">{d.title}</span></div>)}</div>
         </Card>

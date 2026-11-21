@@ -95,7 +95,7 @@ export default function Dashboard({ go }: { go: (p: Page) => void }) {
         <Card tint="lav"><CardHead title="Getting started" />
           <ol className="small" style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
             <li>Add your business details in <a href="#settings">Settings</a> (used on invoices).</li>
-            <li>Import past invoices from Google Drive or a spreadsheet in <a href="#money">Money &amp; tax</a>.</li>
+            <li>Import a Starling statement in <a href="#money">Money &amp; tax</a> (and older records from Drive if you have them).</li>
             <li>Add clients and live leads, then check the <a href="#scout">Opportunity scout</a>.</li>
           </ol>
           <div className="tiny muted" style={{ marginTop: 10 }}>Last saved {fmtDate(vault.updatedAt.slice(0, 10))}</div>

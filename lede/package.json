@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "scan": "node scanner/scan.mjs public/opportunities.json",
-    "test": "node --experimental-strip-types --no-warnings src/lib/tax.test.ts"
+    "test": "node scripts/test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",

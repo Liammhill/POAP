@@ -26,6 +26,8 @@ export function emptyVault(): Vault {
         'communications, comms, copywriting, copywriter, content, campaign, strategy, messaging, stakeholder engagement, public relations, PR, press, media relations, brand, storytelling, editorial, impact report, annual report, consultation, engagement, marketing, digital content, writer, freelance, consultant',
       googleClientId: '',
       driveSync: false,
+      bankManaged: true,
+      bankRules: {},
       tax: { ...DEFAULT_TAX },
     },
     clients: [],
