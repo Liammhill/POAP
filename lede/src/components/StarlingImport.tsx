@@ -103,7 +103,7 @@ export default function StarlingImport({ onClose }: { onClose: () => void }) {
           <Upload size={28} className="muted" /><div><b>Choose Starling CSV</b></div><div className="small muted">Stays on this device; nothing is uploaded</div>
           <input type="file" hidden accept=".csv,text/csv" onChange={async (e) => { const f = e.target.files?.[0]; if (f) load(await f.arrayBuffer()); }} />
         </label>
-        {isDemo && <button className="btn" onClick={() => load(sampleStarlingCsv())}>Try with a sample statement</button>}
+        {isDemo && <button className="btn" onClick={() => { const u = vault.invoices.find((i) => !i.paidDate); const c = vault.clients.find((x) => x.id === u?.clientId); load(sampleStarlingCsv(u && c ? { payer: c.name, number: u.number, amount: u.amount } : undefined)); }}>Try with a sample statement</button>}
         {err && <div className="err">{err}</div>}
       </>}
 
@@ -113,7 +113,7 @@ export default function StarlingImport({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <h3>Money in</h3>
-          <div className="tiny muted" style={{ marginBottom: 4 }}>Match each payer to a client. Payments matching an unpaid invoice of the same amount mark it paid.</div>
+          <div className="tiny muted" style={{ marginBottom: 4 }}>Match each payer to a client. A payment quoting an invoice number, or matching an unpaid invoice’s amount, marks that invoice paid.</div>
           <div className="list">{ins.map(row)}</div>
         </div>
         <div>

@@ -50,14 +50,14 @@ Scopes requested: `drive.readonly` (to search and read her spreadsheets — Lede
 
 ## Importing from Starling
 
-Eleanor invoices and files through Starling, so Lede is the insight layer on top. **Money & tax → Starling statement** takes Starling's CSV transaction export:
+Eleanor banks and files her tax return through Starling, and writes her own invoices. **Money & tax → Starling statement** takes Starling's CSV transaction export:
 
 * **Money in** is grouped by payer and matched to clients (truncated bank names like `RIVERSIDE HOUSING TRUS` are matched automatically). Interest, refunds, HMRC and transfers from herself are left out by default.
 * **Money out** becomes expenses, with a category guessed from Starling's spending category; tax payments and transfers to herself are excluded.
-* A payment that matches an unpaid invoice logged in Lede (same client, same amount) marks it paid.
+* A payment whose reference quotes a Lede invoice number, or that matches an unpaid invoice's client and amount, marks that invoice paid, so Lede always knows what's still outstanding.
 * Choices are remembered per payee, and transactions already imported are skipped, so a monthly export with overlapping dates is one click.
 
-With "Invoicing and tax filing are done in Starling" on (Settings, default), invoice printing and chaser emails are hidden and the MTD card becomes a reference panel.
+With "Tax returns are filed through Starling" on (Settings, default), the Making Tax Digital card becomes a reference panel.
 
 ## Importing historic records
 

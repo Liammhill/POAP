@@ -78,7 +78,7 @@ export default function Settings() {
 
         <Card>
           <CardHead title="Tax" sub="Defaults are 2026/27 rates for England, Wales & NI" />
-          <label className="check" style={{ marginBottom: 14 }}><input type="checkbox" checked={s.bankManaged} onChange={(e) => set({ bankManaged: e.target.checked })} />Invoicing and tax filing are done in Starling</label>
+          <label className="check" style={{ marginBottom: 14 }}><input type="checkbox" checked={s.bankManaged} onChange={(e) => set({ bankManaged: e.target.checked })} />Tax returns are filed through Starling</label>
           <div className="form-grid">
             <Field label="Accounting basis"><select className="input" value={s.basis} onChange={(e) => set({ basis: e.target.value as S['basis'] })}><option value="cash">Cash basis (default for sole traders)</option><option value="accruals">Accruals</option></select></Field>
             {txt('otherIncome', 'Other taxable income (£/yr)', 'Salary, pension etc. — affects your band', 'number')}

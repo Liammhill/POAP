@@ -67,6 +67,13 @@ export const titleCase = (s: string) => s.toLowerCase().replace(/\b([a-z])/g, (c
 const NOT_INCOME = /hmrc|interest|starling|refund|cashback|transfer|savings|\bpot\b|loan|director/i;
 const NOT_EXPENSE = /hmrc|tax|transfer|savings|\bpot\b|personal|salary|drawings/i;
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+/** "INV EH-031" or "eh031" in a bank reference matches invoice EH-031 (but EH-03 doesn't match EH-031). */
+export function refHasNumber(ref: string, num: string) {
+  const n = norm(num), r = norm(ref);
+  if (n.length < 3 || !/\d/.test(n)) return false;
+  const i = r.indexOf(n);
+  return i >= 0 && !/\d/.test(r[i + n.length] ?? '');
+}
 
 export function guessCategory(t: Txn): ExpenseCategory {
   const s = `${t.category} ${t.counterparty} ${t.reference}`.toLowerCase();
@@ -88,6 +95,8 @@ export function defaultRule(g: Group, v: Vault): BankRule | { kind: 'new' } {
   const isOwner = owner.some((w) => g.name.toLowerCase().includes(w));
   if (g.dir === 'in') {
     if (isOwner || NOT_INCOME.test(`${g.name} ${g.hint}`)) return { kind: 'ignore' };
+    const byRef = v.invoices.find((i) => g.txns.some((t) => refHasNumber(t.reference, i.number)));
+    if (byRef && v.clients.some((c) => c.id === byRef.clientId)) return { kind: 'client', clientId: byRef.clientId };
     const n = norm(g.name);
     const match = v.clients.find((c) => { const cn = norm(c.name); return cn === n || (n.length >= 6 && (cn.startsWith(n) || n.startsWith(cn))); });
     return match ? { kind: 'client', clientId: match.id } : { kind: 'new' };
@@ -123,8 +132,10 @@ export function applyStarling(v: Vault, groups: Group[], choice: Record<string, 
         continue;
       }
       const clientId = rule.clientId;
-      // Match an expected (unpaid) invoice for this client of the same amount, raised before the payment.
-      const open = invoices.findIndex((i) => i.clientId === clientId && !i.paidDate && Math.abs(i.amount - t.amount) < 0.01 && i.issueDate <= t.date);
+      // Reconcile: an unpaid invoice whose number appears in the payment reference, else one for this
+      // client of the same amount raised before the payment.
+      let open = invoices.findIndex((i) => !i.paidDate && refHasNumber(t.reference, i.number));
+      if (open < 0) open = invoices.findIndex((i) => i.clientId === clientId && !i.paidDate && Math.abs(i.amount - t.amount) < 0.01 && i.issueDate <= t.date);
       if (open >= 0) {
         invoices[open] = { ...invoices[open], paidDate: t.date, bankRef: t.key };
         r.reconciled++;
@@ -138,7 +149,7 @@ export function applyStarling(v: Vault, groups: Group[], choice: Record<string, 
 }
 
 /** A fictional Starling-style statement, for the demo. */
-export function sampleStarlingCsv(): string {
+export function sampleStarlingCsv(pay?: { payer: string; number: string; amount: number }): string {
   const rows: (string | number)[][] = [['Date', 'Counter Party', 'Reference', 'Type', 'Amount (GBP)', 'Balance (GBP)', 'Spending Category', 'Notes']];
   const fmt = (iso: string) => iso.split('-').reverse().join('/');
   let bal = 8200;
@@ -155,5 +166,6 @@ export function sampleStarlingCsv(): string {
   add(14, 'KINDRED HOSPICE CARE', 'Legacy campaign', 'FASTER_PAYMENT', 1600, 'INCOME');
   add(9, 'STARLING BANK', 'Interest', 'INTEREST', 3.12, 'INCOME');
   add(3, 'ADOBE SYSTEMS', 'Creative Cloud', 'CARD', -54.99, 'SUBSCRIPTIONS');
+  if (pay) add(1, pay.payer.toUpperCase().slice(0, 22), `INV ${pay.number}`, 'FASTER_PAYMENT', pay.amount, 'INCOME');
   return rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
 }

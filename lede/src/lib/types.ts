@@ -117,7 +117,7 @@ export interface Settings {
   keywords: string;
   googleClientId: string;
   driveSync: boolean;
-  bankManaged: boolean; // invoicing & MTD filing handled by her bank (Starling)
+  bankManaged: boolean; // tax filing (MTD / Self Assessment) handled in Starling
   bankRules: Record<string, BankRule>; // remembered per counterparty
   tax: TaxParams;
 }

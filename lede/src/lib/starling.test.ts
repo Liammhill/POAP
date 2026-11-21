@@ -1,4 +1,4 @@
-import { applyStarling, defaultRule, groupTxns, parseStarling, ruleKey, sampleStarlingCsv } from './starling.ts';
+import { applyStarling, defaultRule, groupTxns, parseStarling, refHasNumber, ruleKey, sampleStarlingCsv } from './starling.ts';
 import { sampleVault } from './sample.ts';
 const ok = (c: boolean, m: string) => { if (!c) { console.error('FAIL', m); (globalThis as any).process.exit(1); } console.log('ok', m); };
 const grid = sampleStarlingCsv().split('\n').map((l) => l.slice(1, -1).split('","'));
@@ -18,4 +18,14 @@ const r = applyStarling(v, groups, choice);
 ok(r.income + r.reconciled === 4 && r.expenses === 5 && r.newClients === 1, `counts ${JSON.stringify({ ...r, vault: 0 })}`);
 const again = applyStarling(r.vault, groupTxns(txns), Object.fromEntries(groupTxns(txns).map((g) => [ruleKey(g.dir, g.name), defaultRule(g, r.vault)])));
 ok(again.income + again.reconciled + again.expenses + again.newClients === 0, 're-import adds nothing');
+ok(refHasNumber('INV EH-031 thanks', 'EH-031') && refHasNumber('eh031', 'EH-031') && !refHasNumber('EH-0312', 'EH-031') && !refHasNumber('EH-03', 'EH-031'), 'invoice number in reference');
+// Payment quoting an unpaid invoice number marks it paid, even from an unexpected payer name.
+const v2 = sampleVault();
+const inv = v2.invoices.find((i) => !i.paidDate)!;
+const t2 = parseStarling([['Date', 'Counter Party', 'Reference', 'Amount (GBP)'], ['20/11/2026', 'FINANCE DEPT LTD', `Ref ${inv.number}`, String(inv.amount)]]);
+const g2 = groupTxns(t2);
+const c2 = Object.fromEntries(g2.map((g) => [ruleKey(g.dir, g.name), defaultRule(g, v2)]));
+ok((c2[ruleKey('in', 'FINANCE DEPT LTD')] as any).clientId === inv.clientId, 'payer suggested from invoice number');
+const r2 = applyStarling(v2, g2, c2);
+ok(r2.reconciled === 1 && r2.vault.invoices.find((i) => i.id === inv.id)!.paidDate === '2026-11-20', 'reconciled by reference');
 console.log('all starling tests passed');

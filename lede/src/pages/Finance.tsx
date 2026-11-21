@@ -122,19 +122,17 @@ function Invoices() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `invoices-${now}.csv`; a.click();
   };
 
-  const bank = vault.settings.bankManaged;
   return (
     <Card>
-      {bank && <div className="note" style={{ marginBottom: 14 }}>Invoices are raised in Starling. Log one here if you want to track it while it’s outstanding. When the payment arrives in a Starling import, it’s marked paid automatically.</div>}
       <div className="row wrap between" style={{ marginBottom: 14 }}>
         <Seg value={filter} onChange={setFilter} options={[{ value: 'all', label: 'All' }, { value: 'unpaid', label: 'Unpaid' }, { value: 'overdue', label: 'Overdue' }, { value: 'paid', label: 'Paid' }]} />
         <div className="row wrap">
           <SearchBox value={q} onChange={setQ} />
           <button className="btn" onClick={exportCsv} title="CSV for your accountant"><Download size={16} />CSV</button>
-          <button className={`btn ${bank ? '' : 'primary'}`} onClick={() => setEdit(newInvoice(vault))}><Plus size={16} />{bank ? 'Log invoice' : 'New invoice'}</button>
+          <button className="btn primary" onClick={() => setEdit(newInvoice(vault))}><Plus size={16} />New invoice</button>
         </div>
       </div>
-      {!list.length ? <Empty icon={<Receipt size={30} />} title="No invoices here">Import a Starling statement, or bring in older records from Drive or a spreadsheet.</Empty> : (
+      {!list.length ? <Empty icon={<Receipt size={30} />} title="No invoices here">Create one here, or bring in past invoices from Drive or a spreadsheet. Starling imports mark them paid when the money lands.</Empty> : (
         <div className="table-wrap"><table>
           <thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th className="right">Amount</th><th>Status</th><th /></tr></thead>
           <tbody>{list.map((i) => {
@@ -149,8 +147,8 @@ function Invoices() {
                 <td onClick={(e) => e.stopPropagation()}>
                   <div className="row" style={{ gap: 2, justifyContent: 'flex-end' }}>
                     {!i.paidDate && <button className="btn ghost icon" title="Mark paid today" onClick={() => upsert('invoices', { ...i, paidDate: now })}><Check size={16} /></button>}
-                    {!bank && s === 'overdue' && <a className="btn ghost icon" title="Email a reminder" href={chaseLink(vault, i)}><Mail size={16} /></a>}
-                    {!bank && <button className="btn ghost icon" title="Print / PDF" onClick={() => setPrint(i)}><Printer size={16} /></button>}
+                    {s === 'overdue' && <a className="btn ghost icon" title="Email a reminder" href={chaseLink(vault, i)}><Mail size={16} /></a>}
+                    <button className="btn ghost icon" title="Print / PDF" onClick={() => setPrint(i)}><Printer size={16} /></button>
                   </div>
                 </td>
               </tr>
