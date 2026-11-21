@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Home, Wallet, KanbanSquare, Users, Telescope, FileBadge, Settings as Cog, LogOut, Cloud, CloudOff, RefreshCw } from 'lucide-react';
-import { VaultProvider, useVault, type Session } from './lib/store';
+import { DEMO, VaultProvider, useVault, type Session } from './lib/store';
+import { deriveKey, newSalt } from './lib/crypto';
+import { sampleVault } from './lib/sample';
 import { clientStats, dealHeat } from './lib/analytics';
 import Lock from './pages/Lock';
 import Dashboard from './pages/Dashboard';
@@ -26,9 +28,23 @@ const readHash = (): Page => {
   return [...NAV.map((n) => n.id), 'settings'].includes(h) ? h : 'home';
 };
 
+/** Demo: open straight into fictional sample data, no password, nothing stored. */
+function useDemoSession(set: (s: Session) => void) {
+  useEffect(() => {
+    if (!DEMO) return;
+    const salt = newSalt();
+    deriveKey(crypto.randomUUID(), salt).then((key) => {
+      const vault = sampleVault();
+      vault.settings.autoLockMinutes = 0;
+      set({ key, salt, vault });
+    });
+  }, [set]);
+}
+
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
-  if (!session) return <Lock onUnlock={setSession} />;
+  useDemoSession(setSession);
+  if (!session) return DEMO ? <div className="lock" /> : <Lock onUnlock={setSession} />;
   return <VaultProvider session={session} onLock={() => setSession(null)}><Shell /></VaultProvider>;
 }
 
@@ -71,7 +87,7 @@ function Shell() {
         <div className="spacer" />
         <button className={`navlink ${page === 'settings' ? 'active' : ''}`} onClick={() => go('settings')}><Cog size={18} />Settings</button>
         <div className="row">
-          <button className="navlink" onClick={lock}><LogOut size={18} />Lock</button>
+          {!DEMO && <button className="navlink" onClick={lock}><LogOut size={18} />Lock</button>}
           {syncBtn}
         </div>
       </aside>
@@ -81,11 +97,14 @@ function Shell() {
         <div className="row" style={{ gap: 2 }}>
           {syncBtn}
           <button className="btn ghost icon" onClick={() => go('settings')} aria-label="Settings"><Cog size={19} /></button>
-          <button className="btn ghost icon" onClick={lock} aria-label="Lock"><LogOut size={19} /></button>
+          {!DEMO && <button className="btn ghost icon" onClick={lock} aria-label="Lock"><LogOut size={19} /></button>}
         </div>
       </header>
 
-      <main className="main">{content}</main>
+      <main className="main">
+        {DEMO && <div className="note no-print" style={{ marginBottom: 16, background: 'var(--lav)', borderStyle: 'solid' }}><b>Prototype preview.</b> Everything here is fictional sample data, and nothing you enter is saved. The real app opens with a password and keeps Eleanor’s data encrypted on her own devices.</div>}
+        {content}
+      </main>
 
       <nav className="bottomnav no-print">
         {NAV.map(({ id, short, Icon }) => (

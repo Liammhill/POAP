@@ -6,6 +6,7 @@ import { driveConnected, pushVault } from './drive';
 import type { Vault } from './types';
 
 const KEY = 'lede-vault';
+export const DEMO = import.meta.env.VITE_DEMO === '1';
 
 export const loadSealed = () => get<Sealed>(KEY);
 export const wipeLocal = () => del(KEY);
@@ -71,6 +72,7 @@ export function VaultProvider({ session, onLock, children }: { session: Session;
 
   const persist = useCallback(async (v: Vault) => {
     const sealed = await seal(sess.current.key, sess.current.salt, v);
+    if (DEMO) return sealed; // demo keeps everything in memory; a reload starts fresh
     await set(KEY, sealed);
     window.clearTimeout(pushTimer.current);
     pushTimer.current = window.setTimeout(() => pushToDrive(sealed), 3000);
