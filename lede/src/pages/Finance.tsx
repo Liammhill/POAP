@@ -5,6 +5,7 @@ import InvoiceEditor, { newInvoice } from '../components/InvoiceEditor';
 import InvoicePrint from '../components/InvoicePrint';
 import Importer from '../components/Importer';
 import YearOnYear from './YearOnYear';
+import { Define } from '../components/Define';
 import StarlingImport from '../components/StarlingImport';
 import { clientName, deadlines, financeSummary, invStatus, taxYearsWithData } from '../lib/analytics';
 import { daysBetween, fmtDate, fmtShort, taxYearOf, today } from '../lib/dates';
@@ -60,7 +61,7 @@ function Overview({ f, vault }: { f: F; vault: Vault }) {
         <Stat label="Invoiced" value={gbp(f.invoiced)} sub={`${f.issued.length} invoices raised`} tint="lav" />
         <Stat label="Received" value={gbp(f.receivedTotal)} sub={`${f.received.length} payments in`} tint="sage" />
         <Stat label="Unpaid (all years)" value={gbp(f.outstandingTotal)} sub={f.overdue.length ? <span style={{ color: 'var(--blush-ink)' }}>{f.overdue.length} overdue · {gbp(f.overdueTotal)}</span> : 'None overdue'} tint="butter" />
-        <Stat label="Profit (taxable)" value={gbp(f.profitYTD)} sub={`after ${gbp(f.deduction)} ${f.deduction > f.expenseTotal ? 'trading allowance' : 'expenses'}`} tint="blush" />
+        <Stat label="Profit (taxable)" value={gbp(f.profitYTD)} sub={<>after {gbp(f.deduction)} {f.deduction > f.expenseTotal ? <Define k="tradingAllowance">trading allowance</Define> : 'expenses'}</>} tint="blush" />
       </div>
       <div className="grid g3">
         <Card className="span2">
@@ -240,8 +241,8 @@ function Tax({ f }: { f: F }) {
       <div className="grid g4">
         <Stat label={f.isCurrent ? 'Projected profit' : 'Profit'} value={gbp(est.profit)} sub={f.isCurrent ? `${gbp(f.profitYTD)} so far · ${pct(f.elapsed)} through the year` : 'Full year'} tint="lav" />
         <Stat label="Estimated tax + NI" value={gbp(est.total)} sub={`Income tax ${gbp(est.incomeTax)} · Class 4 NI ${gbp(est.ni)}`} tint="blush" />
-        <Stat label="Set aside each month" value={gbp(f.monthlySetAside)} sub={`≈ ${pct(est.effectiveRate)} of every payment received`} tint="sage" />
-        <Stat label="Your tax band" value={<span style={{ fontSize: 22 }}>{est.band.label}</span>} sub={est.band.nextAt ? `${gbp(Math.max(0, est.band.nextAt - total))} until ${est.band.nextLabel}` : 'Top band'} tint="butter" />
+        <Stat label={<Define k="setAside">Set aside each month</Define>} value={gbp(f.monthlySetAside)} sub={`≈ ${pct(est.effectiveRate)} of every payment received`} tint="sage" />
+        <Stat label={<Define k="band">Your tax band</Define>} value={<span style={{ fontSize: 22 }}>{est.band.label}</span>} sub={est.band.nextAt ? `${gbp(Math.max(0, est.band.nextAt - total))} until ${est.band.nextLabel}` : 'Top band'} tint="butter" />
       </div>
 
       <Card>
@@ -275,7 +276,7 @@ function Tax({ f }: { f: F }) {
               ['Projection', f.isCurrent ? <Seg value={s.projection} onChange={(b) => setS({ projection: b })} options={[{ value: 'runrate', label: 'Run-rate' }, { value: 'pipeline', label: '+ Unpaid & pipeline' }]} /> : 'Actuals'],
               ['Income counted', gbp(f.isCurrent ? f.projectedIncome : f.incomeTotal)],
               ['Other income (salary etc.)', <input className="input num" style={{ width: 120 }} type="number" value={s.otherIncome || ''} placeholder="0" onChange={(e) => setS({ otherIncome: e.target.valueAsNumber || 0 })} />],
-              ['Income tax', gbp(est.incomeTax)], ['Class 4 National Insurance', gbp(est.ni)],
+              ['Income tax', gbp(est.incomeTax)], [<Define k="classFour">Class 4 National Insurance</Define>, gbp(est.ni)],
             ].map(([k, v], i) => <div key={i} className="item" style={{ padding: '8px 0' }}><div className="grow">{k}</div>{v}</div>)}
           </div>
           <div className="tiny muted" style={{ marginTop: 8 }}><Info size={12} /> 2026/27 rates for England, Wales &amp; NI. Class 2 NI is no longer compulsory. An estimate — not tax advice; check with your accountant.</div>

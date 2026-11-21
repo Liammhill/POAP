@@ -15,10 +15,10 @@ export const CardHead = ({ title, sub, action }: { title: ReactNode; sub?: React
   </div>
 );
 
-export const Stat = ({ label, value, sub, icon, tone = 'lav', tint }: { label: string; value: ReactNode; sub?: ReactNode; icon?: ReactNode; tone?: Tone; tint?: Tone }) => (
+export const Stat = ({ label, value, sub, icon, tone = 'lav', tint }: { label: ReactNode; value: ReactNode; sub?: ReactNode; icon?: ReactNode; tone?: Tone; tint?: Tone }) => (
   <Card className="stat" tint={tint}>
     <div className="row between">
-      <div className="label">{label}</div>
+      <div className="label"><span>{label}</span></div>
       {icon && <div className={`icon t-${tone}`}>{icon}</div>}
     </div>
     <div className="value">{value}</div>

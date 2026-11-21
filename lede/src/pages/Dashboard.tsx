@@ -7,6 +7,7 @@ import { gbp, sum } from '../lib/format';
 import { useVault } from '../lib/store';
 import { trends } from '../lib/trends';
 import { Delta } from './YearOnYear';
+import { Define } from '../components/Define';
 import type { Page } from '../App';
 
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
@@ -37,8 +38,8 @@ export default function Dashboard({ go }: { go: (p: Page) => void }) {
       <div className="grid g4">
         <Stat label={`Received · ${f.ty.label}`} value={gbp(f.receivedTotal)} sub={`${f.received.length} payments this tax year`} icon={<Wallet size={16} />} tone="sage" tint="sage" />
         <Stat label="Awaiting payment" value={gbp(f.outstandingTotal)} sub={f.overdue.length ? <span style={{ color: 'var(--blush-ink)' }}>{gbp(f.overdueTotal)} overdue</span> : 'Nothing overdue'} icon={<Hourglass size={16} />} tone="butter" tint="butter" />
-        <Stat label="Weighted pipeline" value={gbp(weighted)} sub={`${open.length} live opportunities`} icon={<KanbanSquare size={16} />} tone="lav" tint="lav" />
-        <Stat label="Set aside for tax" value={<>{gbp(f.monthlySetAside)}<span className="small muted"> /mo</span></>} sub={`${f.taxProjected.band.label}`} icon={<PiggyBank size={16} />} tone="blush" tint="blush" />
+        <Stat label={<Define k="weighted" />} value={gbp(weighted)} sub={`${open.length} live opportunities`} icon={<KanbanSquare size={16} />} tone="lav" tint="lav" />
+        <Stat label={<Define k="setAside" />} value={<>{gbp(f.monthlySetAside)}<span className="small muted"> /mo</span></>} sub={`${f.taxProjected.band.label}`} icon={<PiggyBank size={16} />} tone="blush" tint="blush" />
       </div>
 
       <div className="grid g2">
@@ -89,7 +90,7 @@ export default function Dashboard({ go }: { go: (p: Page) => void }) {
         </Card>
 
         <Card className="span2">
-          <CardHead title={`Money in · ${f.ty.label}`} sub={<>{gbp(f.incomeTotal)} counted so far · projected {gbp(f.projectedIncome)} for the year · <Delta v={yoy.ytd.change} label="vs same point last year" /> · run rate <Delta v={yoy.t12.change} /></>}
+          <CardHead title={`Money in · ${f.ty.label}`} sub={<>{gbp(f.incomeTotal)} counted so far · projected {gbp(f.projectedIncome)} for the year · <Delta v={yoy.ytd.change} label="vs same point last year" /> · <Define k="runRate">run rate</Define> <Delta v={yoy.t12.change} /></>}
             action={<button className="btn sm" onClick={() => go('money')}>Details <ArrowRight size={14} /></button>} />
           <Bars data={f.months.map((m) => ({ label: m.label, received: m.received }))} series={[{ key: 'received', color: '#bcd9b6', label: 'Received' }]} />
         </Card>

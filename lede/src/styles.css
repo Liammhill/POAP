@@ -246,3 +246,9 @@ tr.clickable:hover td { background: var(--surface-2); }
 .heat-cell { border-radius: 6px; height: 34px; display: grid; place-items: center; font-size: 10.5px; font-variant-numeric: tabular-nums; }
 .delta-up { color: var(--sage-ink); }
 .delta-down { color: var(--blush-ink); }
+.define { all: unset; cursor: help; text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 3px; }
+.define:focus-visible { outline: 2px solid var(--plum); outline-offset: 2px; border-radius: 3px; }
+.define-pop { position: fixed; z-index: 60; width: 280px; background: var(--ink); color: #f6f1ec; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; font-weight: 400; box-shadow: var(--shadow); text-transform: none; letter-spacing: 0; display: flex; flex-direction: column; gap: 3px; }
+.glossary { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px 24px; margin: 0; }
+.glossary dt { font-weight: 600; font-size: 14px; }
+.glossary dd { margin: 2px 0 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }

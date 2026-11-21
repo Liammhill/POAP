@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, ArrowRight } from 'lucide-react';
 import { Card, CardHead, Seg, Stat } from '../components/ui';
 import { Heatmap, LineChart, type Series } from '../components/charts';
+import { Define, Glossary } from '../components/Define';
 import { trends, type Measure } from '../lib/trends';
 import { fmtShort } from '../lib/dates';
 import { gbp, gbpK } from '../lib/format';
@@ -41,15 +42,17 @@ export default function YearOnYear() {
     <div className="stack" style={{ gap: 16 }}>
       <div className="row wrap between">
         <Seg value={measure} onChange={setMeasure} options={[{ value: 'received', label: 'Money received' }, { value: 'invoiced', label: 'Work invoiced' }]} />
-        <span className="small muted">{measure === 'received' ? 'When payments landed — what your bank sees.' : 'When work was billed — closer to when you were busy.'}</span>
+        </div>
+        <div className="row wrap between" style={{ marginTop: -8 }}>
+        <span className="small muted">{measure === 'received' ? <>Showing <Define k="received">money received</Define>: when payments landed.</> : <>Showing <Define k="invoiced">work invoiced</Define>: when work was billed.</>} Tap any underlined term for a definition.</span>
       </div>
 
       <div className="grid g4">
-        <Stat label={`${t.rows.at(-1)!.ty.label} so far`} value={gbp(t.ytd.value)} tint="lav"
+        <Stat label={<Define k="soFar">{t.rows.at(-1)!.ty.label} so far</Define>} value={gbp(t.ytd.value)} tint="lav"
           sub={<><Delta v={t.ytd.change} label="vs same point last year" /><div className="tiny muted">Last year by {fmtShort(t.ytd.through)}: {gbp(t.ytd.prev)}</div></>} />
-        <Stat label="Run rate · last 12 months" value={gbp(t.t12.value)} tint="sage" sub={<Delta v={t12Change} label="vs the 12 months before" />} />
-        <Stat label={`Last 3 months · to ${t.q3.endLabel}`} value={gbp(t.q3.value)} tint="butter" sub={<Delta v={t.q3.change} label="vs same months last year" />} />
-        <Stat label="Momentum" tint="blush"
+        <Stat label={<><Define k="runRate">Run rate</Define> · last 12 months</>} value={gbp(t.t12.value)} tint="sage" sub={<Delta v={t12Change} label="vs the 12 months before" />} />
+        <Stat label={<><Define k="last3">Last 3 months</Define> · to {t.q3.endLabel}</>} value={gbp(t.q3.value)} tint="butter" sub={<Delta v={t.q3.change} label="vs same months last year" />} />
+        <Stat label={<Define k="momentum" />} tint="blush"
           value={<span style={{ fontSize: 24 }}>{momentum === null ? '—' : momentum > 0.1 ? 'Picking up' : momentum < -0.1 ? 'Slowing' : 'Steady'}</span>}
           sub={<Delta v={momentum} label="last 3 months vs the 3 before" />} />
       </div>
@@ -61,17 +64,17 @@ export default function YearOnYear() {
 
       <div className="grid g2">
         <Card>
-          <CardHead title="Pace through the year" sub="Running total from 6 April. Above last year’s line means you’re ahead." />
+          <CardHead title={<><Define k="pace">Pace</Define> through the year</>} sub="Running total from 6 April. Above last year’s line means you’re ahead." />
           <LineChart labels={t.monthLabels} series={series((r) => r.cumulative)} fmt={(n) => gbp(n)} axisFmt={kfmt} />
         </Card>
         <Card>
-          <CardHead title="Run rate" sub={`Rolling 12-month total. ${t12Change === null ? '' : t12Change > 0.03 ? 'Rising — the business is growing.' : t12Change < -0.03 ? 'Falling — worth a look at the pipeline.' : 'Holding steady.'}`} />
+          <CardHead title={<Define k="runRate" />} sub={`Rolling 12-month total. ${t12Change === null ? '' : t12Change > 0.03 ? 'Rising — the business is growing.' : t12Change < -0.03 ? 'Falling — worth a look at the pipeline.' : 'Holding steady.'}`} />
           <LineChart labels={t.rolling.map((r) => r.label)} series={[{ name: 'Last 12 months', color: YEAR_COLORS[0], values: t.rolling.map((r) => r.value), area: true }]} fmt={(n) => gbp(n)} axisFmt={kfmt} showEndLabels={false} />
         </Card>
       </div>
 
       <Card>
-        <CardHead title="Seasonality" sub={`Money ${word} by month. Darker means busier.`} />
+        <CardHead title={<Define k="seasonality" />} sub={`Money ${word} by month. Darker means busier.`} />
         <Heatmap cols={t.monthLabels} rows={t.rows.slice().reverse().map((r) => ({ label: r.ty.label, values: r.months }))} fmt={(n) => gbp(n)} cellFmt={(n) => (n ? gbpK(n).replace('.0k', 'k') : '·')} />
         <p className="small" style={{ marginBottom: 0 }}>
           {t.completeYears < 2 ? 'Patterns become reliable after two full tax years of records.' : <>
@@ -86,13 +89,13 @@ export default function YearOnYear() {
       <Card>
         <CardHead title="Year by year" sub={`Income is money ${word}. Profit is that, less expenses.`} />
         <div className="table-wrap"><table>
-          <thead><tr><th>Tax year</th><th className="right">Income</th><th className="right">Change</th><th className="right">Invoices</th><th className="right">Avg invoice</th><th className="right">Clients</th><th className="right">New</th><th className="right">Expenses</th><th className="right">Profit</th></tr></thead>
+          <thead><tr><th><Define k="taxYear" /></th><th className="right">Income</th><th className="right">Change</th><th className="right">Invoices</th><th className="right"><Define k="avgInvoice">Avg invoice</Define></th><th className="right">Clients</th><th className="right"><Define k="newClients">New</Define></th><th className="right">Expenses</th><th className="right"><Define k="profit" /></th></tr></thead>
           <tbody>{t.rows.slice().reverse().map((r, i, arr) => {
             const prev = arr[i + 1];
             const comparable = prev && !prev.partialStart && !r.isCurrent;
             return (
               <tr key={r.ty.label}>
-                <td><b>{r.ty.label}</b>{r.isCurrent && <span className="tiny muted"> · so far</span>}{r.partialStart && <span className="tiny muted"> · partial records</span>}</td>
+                <td><b>{r.ty.label}</b>{r.isCurrent && <span className="tiny muted"> · so far</span>}{r.partialStart && <span className="tiny muted"> · <Define k="partial">partial records</Define></span>}</td>
                 <td className="right num"><b>{gbp(r.total)}</b></td>
                 <td className="right small">{r.isCurrent ? <Delta v={t.ytd.change} label="to date" /> : comparable ? <Delta v={prev.total ? r.total / prev.total - 1 : null} /> : '—'}</td>
                 <td className="right num">{r.invoices}</td>
@@ -105,6 +108,11 @@ export default function YearOnYear() {
             );
           })}</tbody>
         </table></div>
+      </Card>
+
+      <Card tint="lav">
+        <CardHead title="What these mean" />
+        <Glossary keys={['soFar', 'runRate', 'last3', 'momentum', 'pace', 'seasonality', 'received', 'invoiced', 'taxYear', 'avgInvoice', 'newClients', 'profit']} />
       </Card>
     </div>
   );

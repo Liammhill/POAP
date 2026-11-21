@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash2, ExternalLink, Flame, Snowflake, Clock, ChevronRight, Trophy } from 'lucide-react';
 import { Badge, Card, Field, Modal, PageHead, Seg, Stat, confirmDelete } from '../components/ui';
+import { Define } from '../components/Define';
 import { clientName, dealHeat, STAGE_PROB, STAGES } from '../lib/analytics';
 import { fmtShort, today } from '../lib/dates';
 import { gbp, pct, sum, uid } from '../lib/format';
@@ -32,7 +33,7 @@ export default function Pipeline() {
       <PageHead eyebrow="Pipeline" title="Work on the horizon" actions={<button className="btn primary" onClick={() => setEdit(blankDeal())}><Plus size={16} />Add opportunity</button>} />
       <div className="grid g4" style={{ marginBottom: 18 }}>
         <Stat label="Open value" value={gbp(sum(open, (d) => d.value))} sub={`${open.length} opportunities`} tint="lav" />
-        <Stat label="Weighted value" value={gbp(sum(open, (d) => (d.value * d.probability) / 100))} sub="value × likelihood" tint="sage" />
+        <Stat label={<Define k="weighted">Weighted value</Define>} value={gbp(sum(open, (d) => (d.value * d.probability) / 100))} sub="value × likelihood" tint="sage" />
         <Stat label="Gone stale" value={stale.length} sub={`no activity for ${vault.settings.staleDays * 2}+ days, or start date passed`} tint="blush" />
         <Stat label="Win rate" value={pct(winRate)} sub={`${won.length} won · ${lost.length} lost`} tint="butter" />
       </div>
