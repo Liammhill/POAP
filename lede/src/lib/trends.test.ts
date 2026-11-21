@@ -1,0 +1,15 @@
+import { trends } from './trends.ts';
+import { financeSummary } from './analytics.ts';
+import { sampleVault } from './sample.ts';
+import { taxYearOf, today } from './dates.ts';
+const ok = (c: boolean, m: string) => { if (!c) { console.error('FAIL', m); (globalThis as any).process.exit(1); } console.log('ok', m); };
+const v = sampleVault();
+const t = trends(v, 'received');
+const ti = trends(v, 'invoiced');
+const f = financeSummary(v, taxYearOf(today()));
+ok(Math.abs(t.rows.at(-1)!.total - f.receivedTotal) < 0.01, 'current-year total matches finance summary');
+ok(t.rows.every((r) => Math.abs((r.cumulative.filter((x) => x !== null).at(-1) ?? 0) - r.total) < 0.01 || r.isCurrent), 'cumulative ends at year total');
+ok(t.rows.length >= 3, `has ${t.rows.length} tax years`);
+ok(ti.completeYears >= 2 && ti.quiet.includes('Aug'), `seasonality finds quiet months: ${ti.quiet}`);
+ok(t.t12.change !== null, `run-rate change computed: ${t.t12.change}`);
+console.log('all trends tests passed');

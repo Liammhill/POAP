@@ -4,6 +4,7 @@ import { Badge, Bars, Card, CardHead, Empty, Field, Meter, Modal, PageHead, Sear
 import InvoiceEditor, { newInvoice } from '../components/InvoiceEditor';
 import InvoicePrint from '../components/InvoicePrint';
 import Importer from '../components/Importer';
+import YearOnYear from './YearOnYear';
 import StarlingImport from '../components/StarlingImport';
 import { clientName, deadlines, financeSummary, invStatus, taxYearsWithData } from '../lib/analytics';
 import { daysBetween, fmtDate, fmtShort, taxYearOf, today } from '../lib/dates';
@@ -11,7 +12,7 @@ import { gbp, pct, sum, uid } from '../lib/format';
 import { useVault } from '../lib/store';
 import type { Expense, ExpenseCategory, Invoice, Vault } from '../lib/types';
 
-type Tab = 'overview' | 'invoices' | 'expenses' | 'tax';
+type Tab = 'overview' | 'yoy' | 'invoices' | 'expenses' | 'tax';
 const CATS: ExpenseCategory[] = ['Travel', 'Mileage', 'Software & subscriptions', 'Phone & internet', 'Office & equipment', 'Training & CPD', 'Professional fees', 'Marketing', 'Use of home', 'Other'];
 
 export default function Finance() {
@@ -26,17 +27,18 @@ export default function Finance() {
 
   return (
     <>
-      <PageHead eyebrow="Money & tax" title={<>Tax year <em>{ty.label}</em></>} actions={<>
-        <select className="input" style={{ width: 'auto' }} value={yearIdx} onChange={(e) => setYearIdx(Number(e.target.value))}>
+      <PageHead eyebrow="Money & tax" title={tab === 'yoy' ? <>Year <em>on</em> year</> : <>Tax year <em>{ty.label}</em></>} actions={<>
+        {tab !== 'yoy' && <select className="input" style={{ width: 'auto' }} value={yearIdx} onChange={(e) => setYearIdx(Number(e.target.value))}>
           {years.map((y, i) => <option key={y.label} value={i}>{y.label}{i === 0 ? ' (current)' : ''}</option>)}
-        </select>
+        </select>}
         <button className="btn" onClick={() => setImporting(true)} title="Other spreadsheets, CSV or Google Drive"><Upload size={16} />Import file</button>
         <button className="btn primary" onClick={() => setStarling(true)}><Landmark size={16} />Starling statement</button>
       </>} />
       <div style={{ marginBottom: 18 }}>
-        <Seg value={tab} onChange={setTab} options={[{ value: 'overview', label: 'Overview' }, { value: 'invoices', label: 'Invoices' }, { value: 'expenses', label: 'Expenses' }, { value: 'tax', label: 'Tax planner' }]} />
+        <Seg value={tab} onChange={setTab} options={[{ value: 'overview', label: 'Overview' }, { value: 'yoy', label: 'Year on year' }, { value: 'invoices', label: 'Invoices' }, { value: 'expenses', label: 'Expenses' }, { value: 'tax', label: 'Tax planner' }]} />
       </div>
       {tab === 'overview' && <Overview f={f} vault={vault} />}
+      {tab === 'yoy' && <YearOnYear />}
       {tab === 'invoices' && <Invoices />}
       {tab === 'expenses' && <Expenses f={f} />}
       {tab === 'tax' && <Tax f={f} />}

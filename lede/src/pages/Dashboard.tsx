@@ -5,6 +5,8 @@ import { clientName, clientStats, deadlines, dealHeat, financeSummary } from '..
 import { daysBetween, fmtDate, fmtShort, taxYearOf, today } from '../lib/dates';
 import { gbp, sum } from '../lib/format';
 import { useVault } from '../lib/store';
+import { trends } from '../lib/trends';
+import { Delta } from './YearOnYear';
 import type { Page } from '../App';
 
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
@@ -20,6 +22,7 @@ export default function Dashboard({ go }: { go: (p: Page) => void }) {
   const reach = cs.filter((c) => c.contactDue && c.tier !== 'New').slice(0, 4);
   const dl = deadlines(now).slice(0, 5);
   const first = vault.settings.ownerName.split(' ')[0];
+  const yoy = useMemo(() => trends(vault, 'received'), [vault]);
   const nothing = !f.overdue.length && !cold.length && !reach.length;
 
   return (
@@ -86,7 +89,7 @@ export default function Dashboard({ go }: { go: (p: Page) => void }) {
         </Card>
 
         <Card className="span2">
-          <CardHead title={`Money in · ${f.ty.label}`} sub={`${gbp(f.incomeTotal)} counted so far on a ${vault.settings.basis} basis · projected ${gbp(f.projectedIncome)} for the year`}
+          <CardHead title={`Money in · ${f.ty.label}`} sub={<>{gbp(f.incomeTotal)} counted so far · projected {gbp(f.projectedIncome)} for the year · <Delta v={yoy.ytd.change} label="vs same point last year" /> · run rate <Delta v={yoy.t12.change} /></>}
             action={<button className="btn sm" onClick={() => go('money')}>Details <ArrowRight size={14} /></button>} />
           <Bars data={f.months.map((m) => ({ label: m.label, received: m.received }))} series={[{ key: 'received', color: '#bcd9b6', label: 'Received' }]} />
         </Card>

@@ -10,7 +10,7 @@ export function sampleVault(): Vault {
   const now = today();
   const v = emptyVault();
   const mk = (name: string, sector: Sector, contactName: string, lastContacted?: number): Client => ({
-    id: uid(), name, sector, contactName, email: `${contactName.split(' ')[0].toLowerCase()}@example.org`, createdAt: addDays(now, -900),
+    id: uid(), name, sector, contactName, email: `${contactName.split(' ')[0].toLowerCase()}@example.org`, createdAt: addDays(now, -1300),
     lastContacted: lastContacted !== undefined ? addDays(now, -lastContacted) : undefined,
   });
   const clients = [
@@ -37,10 +37,14 @@ export function sampleVault(): Vault {
   ];
   const invoices: Invoice[] = [];
   let n = 1;
-  for (let back = 840; back > 5; back -= 18 + Math.floor(rnd() * 22)) {
-    const [ci, desc, base, hl] = work[Math.floor(rnd() * work.length)];
+  for (let back = 1300; back > 5; back -= 12 + Math.floor(rnd() * 16)) {
+    const [ci, desc, base0, hl] = work[Math.floor(rnd() * work.length)];
     if (ci === 3 && back < 400) continue; // Northern Arts has gone dormant
     const issue = addDays(now, -back);
+    const month = Number(issue.slice(5, 7));
+    // Seasonal pattern: August and late December are quiet; steady growth year on year.
+    if ((month === 8 && rnd() < 0.8) || (month === 12 && rnd() < 0.55) || (month === 1 && rnd() < 0.3)) continue;
+    const base = base0 * (0.72 + 0.5 * (1 - back / 1300));
     const due = addDays(issue, 30);
     const late = rnd();
     const paid = back > 45 || late > 0.6 ? addDays(issue, 12 + Math.floor(rnd() * 30)) : undefined;
@@ -53,7 +57,7 @@ export function sampleVault(): Vault {
   }
   const cats: Expense['category'][] = ['Software & subscriptions', 'Travel', 'Phone & internet', 'Training & CPD', 'Office & equipment', 'Professional fees'];
   const expenses: Expense[] = [];
-  for (let back = 800; back > 0; back -= 20 + Math.floor(rnd() * 20)) {
+  for (let back = 1300; back > 0; back -= 20 + Math.floor(rnd() * 20)) {
     const category = cats[Math.floor(rnd() * cats.length)];
     expenses.push({ id: uid(), date: addDays(now, -back), category, description: category === 'Software & subscriptions' ? 'Adobe / Canva / Microsoft 365' : category, amount: Math.round(20 + rnd() * 180) });
   }

@@ -241,3 +241,8 @@ tr.clickable:hover td { background: var(--surface-2); }
   .bar > .tiny { display: none; }
   .bar .lbl { font-size: 9.5px; }
 }
+.chart-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 11px; box-shadow: var(--shadow); min-width: 150px; }
+.heat { display: grid; gap: 3px; min-width: 520px; }
+.heat-cell { border-radius: 6px; height: 34px; display: grid; place-items: center; font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.delta-up { color: var(--sage-ink); }
+.delta-down { color: var(--blush-ink); }
